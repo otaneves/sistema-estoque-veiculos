@@ -1,0 +1,12 @@
+POST http://localhost:8080/veiculos
+Content-Type: application/json
+
+{
+  "marca": "Toyota",
+  "modelo": "Corolla",
+  "ano": "2004",
+  "cor": "prata",
+  "preco": 95000.00,
+  "quilometragem": 15000,
+  "status": "Disponivel"
+}
