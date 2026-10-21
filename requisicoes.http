@@ -1,4 +1,18 @@
+POST http://localhost:8080/veiculos
+Content-Type: application/json
+
+{
+  "marca": "Toyota",
+  "modelo": "Corolla",
+  "ano": "2004",
+  "cor": "prata",
+  "preco": 95000.00,
+  "quilometragem": 15000,
+  "status": "Disponivel"
+}
+
 ###
+
 PUT http://localhost:8080/veiculos/2
 Content-Type: application/json
 
@@ -10,4 +24,13 @@ Content-Type: application/json
   "preco": 90000.00,
   "quilometragem": 15000,
   "status": "Disponível"
+
 }
+
+###
+
+DELETE http://localhost:8080/veiculos/2
+
+###
+
+GET http://localhost:8080/veiculos/3
