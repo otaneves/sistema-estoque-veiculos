@@ -30,7 +30,7 @@
 		<java.version>17</java.version>
 		<mysql.version>26.7.0</mysql.version>
 		<tomcat.version>11.0.26</tomcat.version>
-		<jackson-bom.version>3.2.3</jackson-bom.version>
+		<jackson-bom.version>3.1.7</jackson-bom.version>
 		<logback.version>1.6.3</logback.version>
 	</properties>
 	<dependencies>
