@@ -1,12 +1,13 @@
-POST http://localhost:8080/veiculos
+###
+PUT http://localhost:8080/veiculos/2
 Content-Type: application/json
 
 {
   "marca": "Toyota",
   "modelo": "Corolla",
-  "ano": "2004",
-  "cor": "prata",
-  "preco": 95000.00,
+  "ano": 2024,
+  "cor": "Preto",
+  "preco": 90000.00,
   "quilometragem": 15000,
-  "status": "Disponivel"
+  "status": "Disponível"
 }

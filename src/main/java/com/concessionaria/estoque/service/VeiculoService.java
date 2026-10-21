@@ -28,6 +28,29 @@ public class VeiculoService {
         return veiculoRepository.save(veiculo);
     }
 
+    public Optional<Veiculo> atualizar(Long id, Veiculo dadosAtualizados){
+
+        Optional<Veiculo> veiculoExistente = veiculoRepository.findById(id);
+
+        if (veiculoExistente.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Veiculo veiculo = veiculoExistente.get();
+
+        veiculo.setMarca(dadosAtualizados.getMarca());
+        veiculo.setModelo(dadosAtualizados.getModelo());
+        veiculo.setAno(dadosAtualizados.getAno());
+        veiculo.setCor(dadosAtualizados.getCor());
+        veiculo.setPreco(dadosAtualizados.getPreco());
+        veiculo.setQuilometragem(dadosAtualizados.getQuilometragem());
+        veiculo.setStatus(dadosAtualizados.getStatus());
+
+        Veiculo veiculoSalvo = veiculoRepository.save(veiculo);
+
+        return Optional.of(veiculoSalvo);
+    }
+
     public boolean excluir(Long id){
         if (!veiculoRepository.existsById(id)){
             return false;

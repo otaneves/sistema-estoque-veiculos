@@ -3,13 +3,8 @@ package com.concessionaria.estoque.controller;
 import com.concessionaria.estoque.service.VeiculoService;
 import com.concessionaria.estoque.model.Veiculo;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
@@ -42,4 +37,16 @@ public class VeiculoController {
 
         return ResponseEntity.ok(veiculoSalvo);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Veiculo> atualizar(@PathVariable Long id,
+                                             @RequestBody Veiculo dadosAtualizados) {
+
+        return veiculoService.atualizar(id, dadosAtualizados)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+
+
+    }
+
 }
