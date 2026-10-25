@@ -5,6 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -15,18 +20,28 @@ public class Veiculo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message= "A marca não pode estar vazia")
     private String marca;
 
+    @NotBlank(message= "O modelo não pode estar vazio")
     private String modelo;
 
+    @NotNull(message = "O ano é obrigatório")
+    @Min(value = 2000, message = "O ano do veiculo não pode ser inferior a {value}")
     private Integer ano;
 
+    @NotBlank(message = "A cor não pode ser vazia")
     private String cor;
 
+    @NotNull(message= "O preço é obrigatório")
+    @DecimalMin(value ="0.0", message = "O preço não pode ser negativo")
     private BigDecimal preco;
 
+    @NotNull(message = "A quilometragem é obrigatória")
+    @Min(value = 0, message = "A quilometragem não pode ser menor que {value}")
     private Integer quilometragem;
 
+    @NotBlank(message = "O status do veiculo é obrigatório")
     private String status;
 
     public Veiculo() {

@@ -6,6 +6,7 @@ import com.concessionaria.estoque.model.Veiculo;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class VeiculoController {
     }
 
     @PostMapping
-    public ResponseEntity<Veiculo> cadastrar(@RequestBody Veiculo veiculo){
+    public ResponseEntity<Veiculo> cadastrar(@Valid @RequestBody Veiculo veiculo){
 
         Veiculo veiculoSalvo = veiculoService.salvar(veiculo);
 
@@ -41,7 +42,7 @@ public class VeiculoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Veiculo> atualizar(@PathVariable Long id,
-                                             @RequestBody Veiculo dadosAtualizados) {
+                                             @Valid @RequestBody Veiculo dadosAtualizados) {
 
         return veiculoService.atualizar(id, dadosAtualizados)
                 .map(ResponseEntity::ok)
