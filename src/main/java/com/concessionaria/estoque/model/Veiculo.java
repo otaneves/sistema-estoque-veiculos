@@ -1,5 +1,7 @@
 package com.concessionaria.estoque.model;
 
+import com.concessionaria.estoque.validation.AnoVeiculoValido;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +29,7 @@ public class Veiculo {
     private String modelo;
 
     @NotNull(message = "O ano é obrigatório")
-    @Min(value = 2000, message = "O ano do veiculo não pode ser inferior a {value}")
+    @AnoVeiculoValido
     private Integer ano;
 
     @NotBlank(message = "A cor não pode ser vazia")
