@@ -1,6 +1,8 @@
 package com.concessionaria.estoque.service;
 
 import com.concessionaria.estoque.model.Veiculo;
+import com.concessionaria.estoque.exception.VeiculoNaoEncontradoException;
+
 import org.springframework.stereotype.Service;
 import com.concessionaria.estoque.repository.VeiculoRepository;
 
@@ -20,23 +22,17 @@ public class VeiculoService {
         return veiculoRepository.findAll();
     }
 
-    public Optional<Veiculo> buscarPorId(Long id){
-        return veiculoRepository.findById(id);
+    public Veiculo buscarPorId(Long id){
+        return veiculoRepository.findById(id).orElseThrow(() -> new VeiculoNaoEncontradoException(id));
     }
 
     public Veiculo salvar(Veiculo veiculo){
         return veiculoRepository.save(veiculo);
     }
 
-    public Optional<Veiculo> atualizar(Long id, Veiculo dadosAtualizados){
+    public Veiculo atualizar(Long id, Veiculo dadosAtualizados){
 
-        Optional<Veiculo> veiculoExistente = veiculoRepository.findById(id);
-
-        if (veiculoExistente.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Veiculo veiculo = veiculoExistente.get();
+        Veiculo veiculo = buscarPorId(id);
 
         veiculo.setMarca(dadosAtualizados.getMarca());
         veiculo.setModelo(dadosAtualizados.getModelo());
@@ -46,18 +42,13 @@ public class VeiculoService {
         veiculo.setQuilometragem(dadosAtualizados.getQuilometragem());
         veiculo.setStatus(dadosAtualizados.getStatus());
 
-        Veiculo veiculoSalvo = veiculoRepository.save(veiculo);
-
-        return Optional.of(veiculoSalvo);
+        return veiculoRepository.save(veiculo);
     }
 
-    public boolean excluir(Long id){
-        if (!veiculoRepository.existsById(id)){
-            return false;
-        }
+    public void excluir(Long id){
 
-        veiculoRepository.deleteById(id);
-        return true;
+        Veiculo veiculo = buscarPorId(id);
+        veiculoRepository.delete(veiculo);
     }
 
 

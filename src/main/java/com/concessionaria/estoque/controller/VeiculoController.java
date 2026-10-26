@@ -27,9 +27,10 @@ public class VeiculoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Veiculo> buscarPorId(@PathVariable Long id) {
-        return veiculoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+
+        Veiculo veiculo = veiculoService.buscarPorId(id);
+
+        return ResponseEntity.ok(veiculo);
     }
 
     @PostMapping
@@ -44,23 +45,17 @@ public class VeiculoController {
     public ResponseEntity<Veiculo> atualizar(@PathVariable Long id,
                                              @Valid @RequestBody Veiculo dadosAtualizados) {
 
-        return veiculoService.atualizar(id, dadosAtualizados)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Veiculo veiculoAtualizado = veiculoService.atualizar(id,dadosAtualizados);
 
-
+        return ResponseEntity.ok(veiculoAtualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
 
-        boolean excluido = veiculoService.excluir(id);
+        veiculoService.excluir(id);
 
-        if (excluido) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
 }
