@@ -2,12 +2,12 @@ POST http://localhost:8080/veiculos
 Content-Type: application/json
 
 {
-  "marca": "Honda",
+  "marca": "",
   "modelo": "Civic",
-  "ano": 2005,
+  "ano": 2024,
   "cor": "Preto",
-  "preco": 95000,
-  "quilometragem": 45000,
+  "preco": 85000,
+  "quilometragem": 30000,
   "status": "DISPONIVEL"
 }
 
@@ -33,4 +33,4 @@ DELETE http://localhost:8080/veiculos/4
 
 ###
 
-GET http://localhost:8080/veiculos/1
+GET http://localhost:8080/veiculos/999
