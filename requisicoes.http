@@ -2,12 +2,12 @@ POST http://localhost:8080/veiculos
 Content-Type: application/json
 
 {
-  "marca": "",
+  "marca": "Honda",
   "modelo": "Civic",
-  "ano": 2024,
-  "cor": "Preto",
-  "preco": 85000,
-  "quilometragem": 30000,
+  "ano": 2022,
+  "cor": "Prata",
+  "preco": 95000.00,
+  "quilometragem": 35000,
   "status": "DISPONIVEL"
 }
 
@@ -19,7 +19,7 @@ Content-Type: application/json
 {
   "marca": "Toyota",
   "modelo": "Corolla",
-  "ano": 2024,
+  "ano": 2022,
   "cor": "Preto",
   "preco": 90000.00,
   "quilometragem": 15000,
@@ -33,4 +33,4 @@ DELETE http://localhost:8080/veiculos/4
 
 ###
 
-GET http://localhost:8080/veiculos/999
+GET http://localhost:8080/veiculos/disponiveis

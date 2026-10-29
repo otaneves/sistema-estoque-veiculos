@@ -2,7 +2,10 @@ package com.concessionaria.estoque.controller;
 
 import com.concessionaria.estoque.service.VeiculoService;
 import com.concessionaria.estoque.model.Veiculo;
+import com.concessionaria.estoque.dto.VeiculoRequestDTO;
+import com.concessionaria.estoque.dto.VeiculoResponseDTO;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -21,24 +24,46 @@ public class VeiculoController {
     }
 
     @GetMapping
-    public List<Veiculo> listarTodos(){
-        return veiculoService.listarTodos();
+    public List<VeiculoResponseDTO> listarTodos(){
+
+        List<Veiculo> veiculos = veiculoService.listarTodos();
+
+        return veiculos.stream()
+                .map(VeiculoResponseDTO::new)
+                .toList();
+
+    }
+
+    @GetMapping("/disponiveis")
+    public List<VeiculoResponseDTO> listarDisponiveis(){
+
+        List<Veiculo> veiculos = veiculoService.listarDisponiveis();
+
+        return veiculos.stream()
+                .map(VeiculoResponseDTO::new)
+                .toList();
+
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Veiculo> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<VeiculoResponseDTO> buscarPorId(@PathVariable Long id) {
 
         Veiculo veiculo = veiculoService.buscarPorId(id);
 
-        return ResponseEntity.ok(veiculo);
+        VeiculoResponseDTO resposta = new VeiculoResponseDTO(veiculo);
+
+        return ResponseEntity.ok(resposta);
     }
 
     @PostMapping
-    public ResponseEntity<Veiculo> cadastrar(@Valid @RequestBody Veiculo veiculo){
+    public ResponseEntity<VeiculoResponseDTO> cadastrar(@Valid @RequestBody VeiculoRequestDTO dados){
 
-        Veiculo veiculoSalvo = veiculoService.salvar(veiculo);
+        Veiculo veiculoSalvo = veiculoService.salvar(dados);
 
-        return ResponseEntity.ok(veiculoSalvo);
+        VeiculoResponseDTO resposta = new VeiculoResponseDTO(veiculoSalvo);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(resposta);
     }
 
     @PutMapping("/{id}")

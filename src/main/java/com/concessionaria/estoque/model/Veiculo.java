@@ -2,15 +2,13 @@ package com.concessionaria.estoque.model;
 
 import com.concessionaria.estoque.validation.AnoVeiculoValido;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.math.BigDecimal;
 
@@ -43,8 +41,8 @@ public class Veiculo {
     @Min(value = 0, message = "A quilometragem não pode ser menor que {value}")
     private Integer quilometragem;
 
-    @NotBlank(message = "O status do veiculo é obrigatório")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusVeiculo status;
 
     public Veiculo() {
 
@@ -106,11 +104,11 @@ public class Veiculo {
         this.quilometragem = quilometragem;
     }
 
-    public String getStatus() {
+    public StatusVeiculo getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusVeiculo status) {
         this.status = status;
     }
 }
