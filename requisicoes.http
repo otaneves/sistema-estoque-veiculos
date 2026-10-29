@@ -13,24 +13,23 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:8080/veiculos/2
+PUT http://localhost:8080/veiculos/6
 Content-Type: application/json
 
 {
   "marca": "Toyota",
   "modelo": "Corolla",
-  "ano": 2022,
-  "cor": "Preto",
-  "preco": 90000.00,
-  "quilometragem": 15000,
-  "status": "Disponível"
-
+  "ano": 2023,
+  "cor": "Branco",
+  "preco": 110000.00,
+  "quilometragem": 25000,
+  "status": "RESERVADO"
 }
 
 ###
 
-DELETE http://localhost:8080/veiculos/4
+DELETE http://localhost:8080/veiculos/
 
 ###
 
-GET http://localhost:8080/veiculos/disponiveis
+GET http://localhost:8080/veiculos

@@ -67,12 +67,14 @@ public class VeiculoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Veiculo> atualizar(@PathVariable Long id,
-                                             @Valid @RequestBody Veiculo dadosAtualizados) {
+    public ResponseEntity<VeiculoResponseDTO> atualizar(@PathVariable Long id,
+                                             @Valid @RequestBody VeiculoRequestDTO dadosAtualizados) {
 
         Veiculo veiculoAtualizado = veiculoService.atualizar(id,dadosAtualizados);
 
-        return ResponseEntity.ok(veiculoAtualizado);
+        VeiculoResponseDTO resposta = new VeiculoResponseDTO(veiculoAtualizado);
+
+        return ResponseEntity.ok(resposta);
     }
 
     @DeleteMapping("/{id}")

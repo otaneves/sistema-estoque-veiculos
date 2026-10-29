@@ -5,6 +5,7 @@ import com.concessionaria.estoque.model.Veiculo;
 import com.concessionaria.estoque.exception.VeiculoNaoEncontradoException;
 import com.concessionaria.estoque.repository.VeiculoRepository;
 import com.concessionaria.estoque.dto.VeiculoRequestDTO;
+import com.concessionaria.estoque.dto.VeiculoRequestDTO;
 
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,7 @@ public class VeiculoService {
     }
 
 
-    public Veiculo atualizar(Long id, Veiculo dadosAtualizados){
+    public Veiculo atualizar(Long id, VeiculoRequestDTO dadosAtualizados){
 
         Veiculo veiculo = buscarPorId(id);
 
