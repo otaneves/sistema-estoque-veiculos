@@ -1,0 +1,2 @@
+GET http://localhost:8080/veiculos/disponiveis
+Origin: http://localhost:5173
