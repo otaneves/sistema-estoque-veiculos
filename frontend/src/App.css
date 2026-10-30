@@ -1,0 +1,49 @@
+.catalogo{
+  text-align: center;
+  padding: 40px;
+}
+
+.catalago h1{
+  font-size: 36px;
+  color: #1e3a8a;
+}
+
+.catalogo p{
+  font-size: 18px;
+  color: #555555;
+}
+
+.catalogo button{
+  background-color: #2563eb;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.veiculo-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 30px auto;
+  max-width: 350px;
+  text-align: left;
+}
+
+.veiculo-card h2 {
+  color: #1e3a8a;
+}
+
+.veiculo-card h3 {
+  color: #16a34a;
+  margin-top: 24px;
+}
+
+.veiculo-card span {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
