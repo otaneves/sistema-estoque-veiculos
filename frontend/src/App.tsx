@@ -54,6 +54,7 @@ function App() {
   ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   const [filtroStatus, setFiltroStatus] = useState("DISPONIVEL");
 
   const veiculosDisponiveis = carro.filter((carro) => carro.status === filtroStatus);
@@ -72,6 +73,11 @@ function App() {
 >>>>>>> 1de8164 (feat(frontend): Adicionando dados dinâmicos e formatação de veiculos)
 =======
   const veiculosDisponiveis = carro.filter((carro) => carro.status === "DISPONIVEL");
+=======
+  const [filtroStatus, setFiltroStatus] = useState("DISPONIVEL");
+
+  const veiculosDisponiveis = carro.filter((carro) => carro.status === filtroStatus);
+>>>>>>> b51f51e (feat: (frontend) Adicionando botão interativo para filtro de visibilidade)
 
   console.log("Veículos disponíveis:", veiculosDisponiveis);
 >>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
@@ -88,14 +94,20 @@ function App() {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b51f51e (feat: (frontend) Adicionando botão interativo para filtro de visibilidade)
       <div className="filtros">
         <button onClick={() => setFiltroStatus("DISPONIVEL")}>Disponíveis</button>
         <button onClick={() => setFiltroStatus("RESERVADO")}>Reservados</button>
         <button onClick={() => setFiltroStatus("VENDIDO")}>Vendidos</button>
       </div>
 
+<<<<<<< HEAD
 =======
 >>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
+=======
+>>>>>>> b51f51e (feat: (frontend) Adicionando botão interativo para filtro de visibilidade)
       {veiculosDisponiveis.length === 0 ? (
         <p>Não há veículos disponíveis no momento.</p>
       ) : (
