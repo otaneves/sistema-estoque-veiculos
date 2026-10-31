@@ -17,6 +17,9 @@ function App() {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
   const carro = [
     {
       id: 1,
@@ -50,6 +53,7 @@ function App() {
     }
   ];
 
+<<<<<<< HEAD
   const [filtroStatus, setFiltroStatus] = useState("DISPONIVEL");
 
   const veiculosDisponiveis = carro.filter((carro) => carro.status === filtroStatus);
@@ -66,6 +70,11 @@ function App() {
     status: "DISPONIVEL"
   };
 >>>>>>> 1de8164 (feat(frontend): Adicionando dados dinâmicos e formatação de veiculos)
+=======
+  const veiculosDisponiveis = carro.filter((carro) => carro.status === "DISPONIVEL");
+
+  console.log("Veículos disponíveis:", veiculosDisponiveis);
+>>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
 
   return (
     <div className="catalogo">
@@ -78,12 +87,15 @@ function App() {
       </button>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       <div className="filtros">
         <button onClick={() => setFiltroStatus("DISPONIVEL")}>Disponíveis</button>
         <button onClick={() => setFiltroStatus("RESERVADO")}>Reservados</button>
         <button onClick={() => setFiltroStatus("VENDIDO")}>Vendidos</button>
       </div>
 
+=======
+>>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
       {veiculosDisponiveis.length === 0 ? (
         <p>Não há veículos disponíveis no momento.</p>
       ) : (
@@ -102,6 +114,7 @@ function App() {
           <span>{formatarStatus(carro.status)}</span>
         </div>
       ))}
+<<<<<<< HEAD
 
 =======
       <div className="veiculo-card">
@@ -112,6 +125,8 @@ function App() {
         <h3>R$ {veiculo.preco.toLocaleString('pt-BR', {style:"currency", currency: "BRL", minimumFractionDigits: 2 })}</h3>
         <span>{formatarStatus(veiculo.status)}</span>
       </div>
+=======
+>>>>>>> d712685 (feat: Adicionando filtros de exibição e condição para pesquisas sem retorno)
 
 >>>>>>> 1de8164 (feat(frontend): Adicionando dados dinâmicos e formatação de veiculos)
     </div>
