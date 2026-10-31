@@ -16,6 +16,7 @@ function App() {
     }
   }
 
+<<<<<<< HEAD
   const carro = [
     {
       id: 1,
@@ -54,6 +55,17 @@ function App() {
   const veiculosDisponiveis = carro.filter((carro) => carro.status === filtroStatus);
 
   console.log("Veículos disponíveis:", veiculosDisponiveis);
+=======
+  const veiculo = {
+    marca: "Toyota",
+    modelo: "Corolla",
+    ano: 2022,
+    cor: "Prata",
+    quilometragem: 35000,
+    preco: 115000,
+    status: "DISPONIVEL"
+  };
+>>>>>>> 1de8164 (feat(frontend): Adicionando dados dinâmicos e formatação de veiculos)
 
   return (
     <div className="catalogo">
@@ -65,6 +77,7 @@ function App() {
         Ver veículos disponíveis
       </button>
 
+<<<<<<< HEAD
       <div className="filtros">
         <button onClick={() => setFiltroStatus("DISPONIVEL")}>Disponíveis</button>
         <button onClick={() => setFiltroStatus("RESERVADO")}>Reservados</button>
@@ -90,6 +103,17 @@ function App() {
         </div>
       ))}
 
+=======
+      <div className="veiculo-card">
+        <h2>{veiculo.marca} {veiculo.modelo}</h2>
+        <p>Ano: {veiculo.ano}</p>
+        <p>Cor: {veiculo.cor}</p>
+        <p>Quilometragem: {veiculo.quilometragem.toLocaleString('pt-BR')} km</p>
+        <h3>R$ {veiculo.preco.toLocaleString('pt-BR', {style:"currency", currency: "BRL", minimumFractionDigits: 2 })}</h3>
+        <span>{formatarStatus(veiculo.status)}</span>
+      </div>
+
+>>>>>>> 1de8164 (feat(frontend): Adicionando dados dinâmicos e formatação de veiculos)
     </div>
   );
 }
