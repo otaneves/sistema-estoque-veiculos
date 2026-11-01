@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 type StatusVeiculo = "DISPONIVEL" | "RESERVADO" | "VENDIDO";
@@ -18,41 +18,8 @@ type Veiculo = {
   preco: number;
   status: StatusVeiculo;
 };
-function App() {
 
-  // Lista de veículos
-  const veiculos: Veiculo[] = [
-    {
-      id: 1,
-      marca: "Toyota",
-      modelo: "Corolla",
-      ano: 2022,
-      cor: "Prata",
-      quilometragem: 35000,
-      preco: 115000,
-      status: "DISPONIVEL"
-    },
-    {
-      id: 2,
-      marca: "Honda",
-      modelo: "Civic",
-      ano: 2023,
-      cor: "Preto",
-      quilometragem: 18000,
-      preco: 135000,
-      status: "RESERVADO"
-    },
-    {
-      id: 3,
-      marca: "Volkswagen",
-      modelo: "Golf",
-      ano: 2021,
-      cor: "Branco",
-      quilometragem: 42000,
-      preco: 98000,
-      status: "VENDIDO"
-    }
-  ];
+function App() {
 
   // Estado responsável pelo filtro selecionado
   const [filtroStatus, setFiltroStatus] =
@@ -60,7 +27,13 @@ function App() {
 
   const [ordemPreco, setOrdemPreco] = useState<OrdemPreco>("CRESCENTE");
 
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+
   const [busca, setBusca] = useState("");
+
+  const [erroApi, setErroApi] = useState<string | null>(null);
+
+  const [carregando, setCarregando] = useState(true);
 
   // Filtra os veículos pelo status selecionado
   const veiculosDisponiveis = veiculos.filter((carro) => {
@@ -121,6 +94,32 @@ function App() {
         return "Veículos";
     }
   }
+  
+  useEffect(() => {
+    carregarVeiculos();
+  }, []);
+
+  async function carregarVeiculos() {
+    setCarregando(true);
+    setErroApi(null); // Limpa qualquer mensagem de erro anterior
+
+    try{
+      const resposta = await fetch("http://localhost:8080/veiculos");
+
+      if (!resposta.ok) {
+        throw new Error("Erro ao buscar veículos");
+      }
+
+    const dados: Veiculo[] = await resposta.json();
+
+    setVeiculos(dados);
+    } catch (error) {
+      console.error("Erro ao carregar veículos:", error);
+      setErroApi("Erro ao carregar veículos da API. Por favor, tente novamente mais tarde.");
+    } finally {
+      setCarregando(false);
+    }
+  }
 
   return (
     <div className="catalogo">
@@ -128,6 +127,18 @@ function App() {
       <h1>Catálogo de Veículos</h1>
 
       <p>Bem-Vindo a nossa Concessionária!</p>
+
+      {erroApi && (
+        <p className="mensagem-erro">{erroApi}</p>
+      )}
+
+      {carregando && (
+        <p>Carregando veículos...</p>
+      )}
+
+      <button onClick={carregarVeiculos} disabled={carregando}>
+        {carregando ? "Atualizando..." : "Atualizar veículos"}
+      </button>
 
       <button className={filtroStatus === "TODOS" ? "filtro-ativo" : ""} 
               onClick={() => setFiltroStatus("TODOS")}>
@@ -199,7 +210,7 @@ function App() {
       </p>
 
       {/* Mensagem para lista vazia */}
-      {veiculosDisponiveis.length === 0 && (
+      {!carregando && !erroApi && veiculosDisponiveis.length === 0 && (
         <p>
           {busca.trim() !== "" ?
           `Nenhum veículo encontrado para a pesquisa: "${busca}"`
@@ -209,36 +220,40 @@ function App() {
         </p>
       )}
       {/* Cards gerados automaticamente */}
-      {veiculosOrdenados.map((carro) => (
+      {!carregando && !erroApi && (
+        <>
+        {veiculosOrdenados.map((carro) => (
 
-        <div className="veiculo-card" key={carro.id}>
+          <div className="veiculo-card" key={carro.id}>
 
-          <h2>
-            {carro.marca} {carro.modelo}
-          </h2>
+            <h2>
+              {carro.marca} {carro.modelo}
+            </h2>
 
-          <p>Ano: {carro.ano}</p>
+            <p>Ano: {carro.ano}</p>
 
-          <p>Cor: {carro.cor}</p>
+            <p>Cor: {carro.cor}</p>
 
-          <p>
-            Quilometragem:{" "}
-            {carro.quilometragem.toLocaleString("pt-BR")} km
-          </p>
+            <p>
+              Quilometragem:{" "}
+              {carro.quilometragem.toLocaleString("pt-BR")} km
+            </p>
 
-          <h3>
-            {carro.preco.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-          </h3>
+            <h3>
+              {carro.preco.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+            </h3>
 
-          <span>{formatarStatus(carro.status)}</span>
+            <span>{formatarStatus(carro.status)}</span>
 
-        </div>
+          </div>
 
-      ))}
+        ))}
 
+        </>
+      )}
     </div>
   );
 }

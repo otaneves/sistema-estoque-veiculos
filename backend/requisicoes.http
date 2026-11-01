@@ -2,33 +2,33 @@ POST http://localhost:8080/veiculos
 Content-Type: application/json
 
 {
-  "marca": "Honda",
-  "modelo": "Civic",
-  "ano": 2022,
-  "cor": "Prata",
-  "preco": 95000.00,
-  "quilometragem": 35000,
-  "status": "DISPONIVEL"
-}
-
-###
-
-PUT http://localhost:8080/veiculos/6
-Content-Type: application/json
-
-{
-  "marca": "Toyota",
-  "modelo": "Corolla",
-  "ano": 2023,
-  "cor": "Branco",
-  "preco": 110000.00,
-  "quilometragem": 25000,
+  "marca": "Fox",
+  "modelo": "Wolkswagen",
+  "ano": 2015,
+  "cor": "Preto",
+  "preco": 25000.00,
+  "quilometragem": 100000,
   "status": "RESERVADO"
 }
 
 ###
 
-DELETE http://localhost:8080/veiculos/
+PUT http://localhost:8080/veiculos/9
+Content-Type: application/json
+
+{
+  "marca": "Fiat",
+  "modelo": "Siena",
+  "ano": 2010,
+  "cor": "Preto",
+  "preco": 20000.00,
+  "quilometragem": 150000,
+  "status": "VENDIDO"
+}
+
+###
+
+DELETE http://localhost:8080/veiculos/6
 
 ###
 
