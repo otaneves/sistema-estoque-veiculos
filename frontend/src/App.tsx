@@ -19,7 +19,44 @@ type Veiculo = {
   status: StatusVeiculo;
 };
 
+type NovoVeiculo = Omit<Veiculo, "id">;
+
+
 function App() {
+  
+  const [novoVeiculo, setNovoVeiculo] = useState<NovoVeiculo>({
+    marca: "",
+    modelo: "",
+    ano: 2026,
+    cor: "",
+    quilometragem: 0,
+    preco: 0,
+    status: "DISPONIVEL"
+  });
+  
+  const [salvando, setSalvando] = useState(false);
+  
+  const [mensagemCadastro, setMensagemCadastro] = useState<string | null>(null);
+
+  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
+
+  function iniciarEdicao(carro: Veiculo) {
+    setIdEmEdicao(carro.id);
+
+    setNovoVeiculo({
+      marca: carro.marca,
+      modelo: carro.modelo,
+      ano: carro.ano,
+      cor: carro.cor,
+      quilometragem: carro.quilometragem,
+      preco: carro.preco,
+      status: carro.status
+    });
+
+    setMensagemCadastro("");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   // Estado responsável pelo filtro selecionado
   const [filtroStatus, setFiltroStatus] =
@@ -121,12 +158,237 @@ function App() {
     }
   }
 
+  async function salvarVeiculo() {
+    setSalvando(true);
+    setMensagemCadastro(null);
+
+    const editando = idEmEdicao !== null;
+
+    try {
+      const url = editando 
+        ? `http://localhost:8080/veiculos/${idEmEdicao}`
+        : "http://localhost:8080/veiculos";
+
+      const resposta = await fetch(url, {
+        method: editando ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(novoVeiculo)
+      });
+
+      if (!resposta.ok) {
+        throw new Error
+        (editando ? "Erro ao atualizar veículo" : 
+          "Erro ao cadastrar veículo");
+      }
+
+      setMensagemCadastro(
+        editando 
+        ? "Veículo atualizado com sucesso!"
+        : "Veículo cadastrado com sucesso!"
+      );
+
+      setIdEmEdicao(null); // Limpa o estado de edição após salvar
+
+      setNovoVeiculo({
+        marca: "",
+        modelo: "",
+        ano: 2026,
+        cor: "",
+        quilometragem: 0,
+        preco: 0,
+        status: "DISPONIVEL"
+      });
+
+      await carregarVeiculos(); // Atualiza a lista de veículos após o cadastro
+
+    } catch (error) {
+      console.error("Erro ao cadastrar veículo:", error);
+      setMensagemCadastro("Erro ao cadastrar veículo. Por favor, tente novamente mais tarde.");
+
+      setMensagemCadastro(
+        editando 
+        ? "Erro ao atualizar veículo. Por favor, tente novamente mais tarde."
+        : "Erro ao cadastrar veículo. Por favor, tente novamente mais tarde."
+      )
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+    async function excluirVeiculo(id: number) {
+      const confirmou = window.confirm(
+        "Tem certeza que deseja excluir este veículo?"
+      );
+
+      if (!confirmou) {
+        return;
+      }
+
+      try {
+        const resposta = await fetch(
+          `http://localhost:8080/veiculos/${id}`,
+          {
+            method: "DELETE"
+          }
+        );
+
+        if (!resposta.ok) {
+          throw new Error("Erro ao excluir veículo");
+        }
+
+        await carregarVeiculos();
+
+        alert("Veículo excluído com sucesso!");
+
+      } catch (erro) {
+        console.error("Erro ao excluir veículo:", erro);
+        alert("Não foi possível excluir o veículo.");
+      }
+    }
+
   return (
     <div className="catalogo">
 
       <h1>Catálogo de Veículos</h1>
 
       <p>Bem-Vindo a nossa Concessionária!</p>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          salvarVeiculo();
+        }}
+      >
+        <h2>{idEmEdicao !== null ? "Editar veículo" : "Cadastrar veículo"}</h2>
+
+        <input
+          type="text"
+          placeholder="Marca"
+          value={novoVeiculo.marca}
+          required
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              marca: e.target.value
+            })
+          }
+        />
+
+        <input
+          type="text"
+          placeholder="Modelo"
+          value={novoVeiculo.modelo}
+          required
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              modelo: e.target.value
+            })
+          }
+        />
+
+        <input
+          type="number"
+          placeholder="Ano"
+          value={novoVeiculo.ano}
+          required
+          min="1900"
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              ano: Number(e.target.value)
+            })
+          }
+        />
+
+        <input
+          type="text"
+          placeholder="Cor"
+          value={novoVeiculo.cor}
+          required
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              cor: e.target.value
+            })
+          }
+        />
+
+        <input
+          type="number"
+          placeholder="Quilometragem"
+          value={novoVeiculo.quilometragem}
+          required
+          min="0"
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              quilometragem: Number(e.target.value)
+            })
+          }
+        />
+
+        <input
+          type="number"
+          placeholder="Preço"
+          value={novoVeiculo.preco}
+          required
+          min="0"
+          step="0.01"
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              preco: Number(e.target.value)
+            })
+          }
+        />
+
+        <select
+          value={novoVeiculo.status}
+          onChange={(e) =>
+            setNovoVeiculo({
+              ...novoVeiculo,
+              status: e.target.value as StatusVeiculo
+            })
+          }
+        >
+          <option value="DISPONIVEL">Disponível</option>
+          <option value="RESERVADO">Reservado</option>
+          <option value="VENDIDO">Vendido</option>
+        </select>
+
+        <button type="submit" disabled={salvando}>
+          {salvando ? "Salvando..." : idEmEdicao !== null ? "Atualizar veículo" : "Cadastrar veículo"}
+        </button>
+
+        {idEmEdicao !== null && (
+          <button
+            type="button"
+            disabled={salvando}
+            onClick={() => {
+              setIdEmEdicao(null);
+
+              setNovoVeiculo({
+                marca: "",
+                modelo: "",
+                ano: 2026,
+                cor: "",
+                quilometragem: 0,
+                preco: 0,
+                status: "DISPONIVEL"
+              });
+
+              setMensagemCadastro("");
+            }}
+          >
+            Cancelar edição
+          </button>
+        )}
+
+        {mensagemCadastro && <p>{mensagemCadastro}</p>}
+      </form>
 
       {erroApi && (
         <p className="mensagem-erro">{erroApi}</p>
@@ -247,6 +509,20 @@ function App() {
             </h3>
 
             <span>{formatarStatus(carro.status)}</span>
+
+            <button
+              type="button"
+              onClick={() => iniciarEdicao(carro)}
+            >
+              Editar veículo
+            </button>
+
+            <button
+              type="button"
+              onClick={() => excluirVeiculo(carro.id)}
+            >
+              Excluir veículo
+            </button>
 
           </div>
 
