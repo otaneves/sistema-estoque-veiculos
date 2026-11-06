@@ -1,35 +1,39 @@
+### TESTE 4 - Usuario autenticado sem permissao
 POST http://localhost:8080/veiculos
 Content-Type: application/json
+Authorization: Basic visitante VisitanteTeste123!
 
 {
-  "marca": "Fox",
-  "modelo": "Wolkswagen",
-  "ano": 2015,
-  "cor": "Preto",
-  "preco": 25000.00,
-  "quilometragem": 100000,
-  "status": "RESERVADO"
+  "marca": "Ford",
+  "modelo": "Focus Teste Permissao",
+  "ano": 2022,
+  "cor": "Branco",
+  "quilometragem": 20000,
+  "preco": 65000,
+  "status": "DISPONIVEL"
 }
-
 ###
 
+### TESTE 5 - Edicao sem autenticacao
 PUT http://localhost:8080/veiculos/9
 Content-Type: application/json
+Authorization: Basic funcionario SenhaTeste123!
 
 {
   "marca": "Fiat",
   "modelo": "Siena",
   "ano": 2010,
   "cor": "Preto",
-  "preco": 20000.00,
   "quilometragem": 150000,
+  "preco": 20000,
   "status": "VENDIDO"
 }
 
 ###
 
-DELETE http://localhost:8080/veiculos/6
+DELETE http://localhost:8080/veiculos/12
+Authorization: Basic funcionario SenhaTeste123!
 
 ###
 
-GET http://localhost:8080/veiculos
+GET http://localhost:8080/veiculos/12

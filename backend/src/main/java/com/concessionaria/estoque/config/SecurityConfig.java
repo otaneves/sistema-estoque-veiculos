@@ -49,9 +49,15 @@ public class SecurityConfig {
                 .roles("FUNCIONARIO")
                 .build();
 
+        UserDetails visitante = User.builder()
+                .username("visitante")
+                .password(passwordEncoder.encode("VisitanteTeste123!"))
+                .roles("VISITANTE")
+                .build();
 
 
-        return new InMemoryUserDetailsManager(funcionario);
+
+        return new InMemoryUserDetailsManager(funcionario, visitante);
     }
 
 }
