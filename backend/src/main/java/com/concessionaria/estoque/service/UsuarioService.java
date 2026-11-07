@@ -41,7 +41,7 @@ public class UsuarioService {
         String emailNormalizado = request.email().trim().toLowerCase(Locale.ROOT);
 
         if(usuarioRepository.existsByEmail(emailNormalizado)){
-            throw new IllegalArgumentException(
+            throw new EmailJaCadastradoException(
                     "Email já cadastrado no sistema."
             );
         }
