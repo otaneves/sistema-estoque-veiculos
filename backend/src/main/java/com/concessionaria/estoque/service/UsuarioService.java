@@ -6,6 +6,7 @@ import com.concessionaria.estoque.model.Perfil;
 import com.concessionaria.estoque.model.Usuario;
 import com.concessionaria.estoque.dto.UsuarioResponse;
 import com.concessionaria.estoque.exception.EmailJaCadastradoException;
+import com.concessionaria.estoque.exception.UsuarioNaoEncontradoException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import java.util.Locale;
+import java.util.List;
 
 @Service
 @Validated
@@ -60,6 +62,50 @@ public class UsuarioService {
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
 
         return UsuarioResponse.fromEntity(usuarioSalvo);
+    }
+
+    public List<UsuarioResponse> listarTodos(Authentication authentication){
+
+        Perfil perfilAutenticado = obterPerfilAutenticado(authentication);
+
+        if (perfilAutenticado == Perfil.FUNCIONARIO){
+            throw new SecurityException(
+                "Funcionários não podem consultar usuários."
+            );
+        }
+
+        List<Usuario> usuarios = usuarioRepository.findAll();
+
+        return usuarios.stream()
+                .filter(usuario -> perfilAutenticado == Perfil.ADMIN || usuario.getPerfil() == Perfil.FUNCIONARIO)
+                .map(UsuarioResponse::fromEntity)
+                .toList();
+
+    }
+
+    public UsuarioResponse buscarPorId(Long id, Authentication authentication){
+
+        Perfil perfilAutenticado = obterPerfilAutenticado(authentication);
+
+        if (perfilAutenticado == Perfil.FUNCIONARIO){
+            throw new SecurityException(
+                    "Funcionários não podem consultar usuários."
+            );
+        }
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Usuário não encontrado."
+                ));
+
+        if (perfilAutenticado == Perfil.GERENTE
+                && usuario.getPerfil() != Perfil.FUNCIONARIO) {
+            throw new SecurityException(
+                    "Gerentes só podem consultar funcionários."
+            );
+        }
+
+        return UsuarioResponse.fromEntity(usuario);
     }
 
     private void validarPermissaoCadastro(
