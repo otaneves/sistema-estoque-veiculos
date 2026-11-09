@@ -21,9 +21,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.GET, "/veiculos/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/veiculos/**").hasRole("FUNCIONARIO")
-                        .requestMatchers(HttpMethod.PUT, "/veiculos/**").hasRole("FUNCIONARIO")
-                        .requestMatchers(HttpMethod.DELETE, "/veiculos/**").hasRole("FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST, "/veiculos/**").hasAnyRole("FUNCIONARIO", "GERENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/veiculos/**").hasAnyRole("FUNCIONARIO", "GERENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/veiculos/**").hasAnyRole("FUNCIONARIO", "GERENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/teste/permissao").hasAnyRole("FUNCIONARIO", "GERENTE", "ADMIN")
+                        .requestMatchers("/usuarios", "/usuarios/**").hasAnyRole("GERENTE", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

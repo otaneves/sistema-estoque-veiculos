@@ -11,4 +11,10 @@ public class AutenticacaoTesteController {
     public String autenticacao(Authentication authentication) {
         return "Autenticado como: " + authentication.getName();
     }
+
+    @GetMapping("/teste/permissao")
+    public String permissao() {
+        return "Permissão concedida";
+    }
+
 }
