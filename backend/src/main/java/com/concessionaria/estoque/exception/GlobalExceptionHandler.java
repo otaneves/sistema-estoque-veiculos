@@ -103,4 +103,28 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
     }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> tratarUsuarioNaoEncontrado(
+            UsuarioNaoEncontradoException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErroResponse.criar(
+                   HttpStatus.NOT_FOUND,
+                   exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ErroResponse> tratarAcessoNegado(
+            SecurityException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErroResponse.criar(
+                   HttpStatus.FORBIDDEN,
+                   exception.getMessage()
+                ));
+    }
 }

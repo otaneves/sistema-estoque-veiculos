@@ -94,7 +94,7 @@ public class UsuarioService {
         }
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
                         "Usuário não encontrado."
                 ));
 
