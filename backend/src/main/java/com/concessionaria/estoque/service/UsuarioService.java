@@ -1,5 +1,6 @@
 package com.concessionaria.estoque.service;
 
+import com.concessionaria.estoque.dto.UsuarioAtualizacaoRequest;
 import com.concessionaria.estoque.repository.UsuarioRepository;
 import com.concessionaria.estoque.dto.UsuarioCadastroRequest;
 import com.concessionaria.estoque.model.Perfil;
@@ -11,6 +12,7 @@ import com.concessionaria.estoque.exception.UsuarioNaoEncontradoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import jakarta.validation.Valid;
 import java.util.Locale;
@@ -107,6 +109,57 @@ public class UsuarioService {
 
         return UsuarioResponse.fromEntity(usuario);
     }
+
+    @Transactional
+    public UsuarioResponse atualizar(
+            Long id, @Valid UsuarioAtualizacaoRequest request, Authentication authentication
+    ) {
+        Perfil perfilAutenticado = obterPerfilAutenticado(authentication);
+
+        if (perfilAutenticado == Perfil.FUNCIONARIO){
+            throw new SecurityException(
+                    "Funcionários não podem atualizar usuários"
+            );
+        }
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário não encontrado."
+                ));
+
+        if (perfilAutenticado == Perfil.GERENTE
+            && usuario.getPerfil() != Perfil.FUNCIONARIO) {
+            throw new SecurityException("Gerentes só podem atualizar funcionários.");
+        }
+
+        String emailNormalizado = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        boolean emailPertenceOutroUsuario = usuarioRepository
+                .findByEmail(emailNormalizado)
+                .filter(usuarioExistente ->
+                        !usuarioExistente.getId().equals(usuario.getId())
+                )
+                .isPresent();
+
+        if (emailPertenceOutroUsuario){
+            throw new EmailJaCadastradoException(
+                    "Email já cadastrado no sistema."
+            );
+        }
+
+        usuario.setNome(request.nome());
+        usuario.setEmail(emailNormalizado);
+
+        /* A restrição UNIQUE do banco também protege contra
+        conflitos de e-mail em atualizações simultâneas*/
+
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        return UsuarioResponse.fromEntity(usuarioAtualizado);
+    }
+    
 
     private void validarPermissaoCadastro(
         Perfil perfilAutenticado,

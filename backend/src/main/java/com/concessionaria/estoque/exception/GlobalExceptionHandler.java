@@ -2,6 +2,7 @@ package com.concessionaria.estoque.exception;
 
 import com.concessionaria.estoque.dto.ErroResponse;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -125,6 +126,18 @@ public class GlobalExceptionHandler {
                 .body(ErroResponse.criar(
                    HttpStatus.FORBIDDEN,
                    exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResponse> tratarViolacaoIntegridade(
+            DataIntegrityViolationException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ErroResponse.criar(
+                        HttpStatus.CONFLICT,
+                        "A operação viola uma restrição de integridade dos dados."
                 ));
     }
 }
