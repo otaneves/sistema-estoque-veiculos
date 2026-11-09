@@ -188,7 +188,7 @@ public class UsuarioService {
         Usuario usuarioAutenticado = usuarioRepository
                 .findByEmail(emailAutenticado)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(
-                        "Conta não encontrada."
+                        "Usuário não encontrado."
                 ));
 
         if (usuario.getId().equals(usuarioAutenticado.getId())) {
