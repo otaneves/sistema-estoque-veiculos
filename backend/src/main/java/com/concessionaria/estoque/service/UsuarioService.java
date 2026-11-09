@@ -159,7 +159,46 @@ public class UsuarioService {
 
         return UsuarioResponse.fromEntity(usuarioAtualizado);
     }
-    
+
+    @Transactional
+    public void excluir(Long id, Authentication authentication){
+
+        Perfil perfilAutenticado = obterPerfilAutenticado(authentication);
+
+        if (perfilAutenticado == Perfil.FUNCIONARIO){
+            throw new SecurityException(
+                    "Funcionários não podem excluir usuários."
+            );
+        }
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário não encontrado."
+                ));
+
+        if (perfilAutenticado == Perfil.GERENTE
+            && usuario.getPerfil() != Perfil.FUNCIONARIO) {
+            throw new SecurityException(
+                    "Gerentes só podem excluir funcionários"
+            );
+        }
+
+        String emailAutenticado = authentication.getName();
+
+        Usuario usuarioAutenticado = usuarioRepository
+                .findByEmail(emailAutenticado)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Conta não encontrada."
+                ));
+
+        if (usuario.getId().equals(usuarioAutenticado.getId())) {
+            throw new SecurityException(
+                    "Você não pode excluir sua própria conta."
+            );
+        }
+
+        usuarioRepository.delete(usuario);
+    }
 
     private void validarPermissaoCadastro(
         Perfil perfilAutenticado,
