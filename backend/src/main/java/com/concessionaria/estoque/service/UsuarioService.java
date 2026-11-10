@@ -122,6 +122,8 @@ public class UsuarioService {
             );
         }
 
+        List<Usuario> administradores = usuarioRepository.findByPerfilOrderByIdAsc(Perfil.ADMIN);
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(
                         "Usuário não encontrado."
@@ -149,6 +151,14 @@ public class UsuarioService {
             );
         }
 
+        if (request.perfil() != null && request.perfil() != usuario.getPerfil()) {
+            if (perfilAutenticado != Perfil.ADMIN || administradores.stream().noneMatch(
+                    admin -> admin.getEmail().equalsIgnoreCase(authentication.getName()))) {
+                throw new SecurityException("Somente administradores podem alterar perfis.");
+            }
+            protegerAdministradores(usuario, administradores);
+            usuario.setPerfil(request.perfil());
+        }
         usuario.setNome(request.nome());
         usuario.setEmail(emailNormalizado);
 
@@ -170,6 +180,8 @@ public class UsuarioService {
                     "Funcionários não podem excluir usuários."
             );
         }
+
+        List<Usuario> administradores = usuarioRepository.findByPerfilOrderByIdAsc(Perfil.ADMIN);
 
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(
@@ -197,7 +209,14 @@ public class UsuarioService {
             );
         }
 
+        protegerAdministradores(usuario, administradores);
         usuarioRepository.delete(usuario);
+    }
+
+    private void protegerAdministradores(Usuario alvo, List<Usuario> administradores) {
+        if (alvo.getPerfil() == Perfil.ADMIN && administradores.size() <= 2) {
+            throw new SecurityException("É necessário manter pelo menos dois administradores.");
+        }
     }
 
     private void validarPermissaoCadastro(

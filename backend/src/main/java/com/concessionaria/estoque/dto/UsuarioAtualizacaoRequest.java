@@ -12,6 +12,7 @@ public record UsuarioAtualizacaoRequest(
         @NotBlank
         @Email
         @Size(max = 150)
-        String email
+        String email,
+        com.concessionaria.estoque.model.Perfil perfil
 ) {
 }

@@ -8,6 +8,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long>{
 
     Optional<Usuario> findByEmail(String email);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    java.util.List<Usuario> findByPerfilOrderByIdAsc(com.concessionaria.estoque.model.Perfil perfil);
+
     boolean existsByEmail(String email);
 
 }
