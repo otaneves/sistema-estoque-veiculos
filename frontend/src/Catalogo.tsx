@@ -38,14 +38,15 @@ export default function Catalogo() {
  const [busca, buscar] = useState('')
  const [marca, filtrarMarca] = useState('')
  const [ano, filtrarAno] = useState('')
+ const [valor, filtrarValor] = useState('')
  const [detalhe, abrir] = useState<Carro>()
  useEffect(() => { api<Carro[]>('/veiculos/disponiveis').then(setLista).catch(e => setErro(e.message)).finally(() => carregar(false)) }, [])
- const filtrados = lista.filter(c => (!marca || marca === c.marca) && (!ano || ano === String(c.ano)) && (c.marca+' '+c.modelo).toLowerCase().includes(busca.trim().toLowerCase()))
+ const filtrados = lista.filter(c => (!valor || (valor === '150000+' ? c.preco > 150000 : c.preco >= Number(valor.split('-')[0]) && c.preco <= Number(valor.split('-')[1]))) && (!marca || marca === c.marca) && (!ano || ano === String(c.ano)) && (c.marca+' '+c.modelo).toLowerCase().includes(busca.trim().toLowerCase()))
  if (detalhe) return <Detalhes carro={detalhe} fechar={() => abrir(undefined)} />
  return <><h1>Encontre seu próximo veículo</h1><p>Explore os veículos disponíveis em nosso estoque.</p>
  <section className="box filtros"><input aria-label="Buscar marca ou modelo" placeholder="Buscar marca ou modelo" value={busca} onChange={e=>buscar(e.target.value)}/>
  <select aria-label="Marca" value={marca} onChange={e=>filtrarMarca(e.target.value)}><option value="">Todas as marcas</option>{[...new Set(lista.map(c=>c.marca))].sort().map(m=><option key={m}>{m}</option>)}</select>
- <select aria-label="Ano" value={ano} onChange={e=>filtrarAno(e.target.value)}><option value="">Todos os anos</option>{[...new Set(lista.map(c=>c.ano))].sort((a,b)=>b-a).map(a=><option key={a}>{a}</option>)}</select></section>
+ <select aria-label="Ano" value={ano} onChange={e=>filtrarAno(e.target.value)}><option value="">Todos os anos</option>{[...new Set(lista.map(c=>c.ano))].sort((a,b)=>b-a).map(a=><option key={a}>{a}</option>)}</select><select aria-label="Faixa de valor" value={valor} onChange={e=>filtrarValor(e.target.value)}><option value="">Todos os valores</option><option value="0-50000">Até R$ 50.000</option><option value="50000.01-100000">R$ 50.000,01 a R$ 100.000</option><option value="100000.01-150000">R$ 100.000,01 a R$ 150.000</option><option value="150000+">Acima de R$ 150.000</option></select></section>
  <h2>Veículos disponíveis</h2>{erro ? <p role="alert">{erro}</p> : carregando ? <p>Carregando…</p> : <p>{filtrados.length} veículo(s) encontrado(s)</p>}
  <div className="cards">{filtrados.map(c=><article className="box" key={c.id}><Foto carro={c}/><span className="badge">Disponível</span><h2>{c.marca} {c.modelo}</h2><p>{c.ano} · {c.cor}</p><strong>{dinheiro(c.preco)}</strong><hr/><button onClick={()=>abrir(c)}>Ver detalhes</button></article>)}</div></>
 }
