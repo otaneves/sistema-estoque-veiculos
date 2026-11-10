@@ -48,6 +48,7 @@ public class VeiculoService {
         veiculo.setPreco(dados.getPreco());
         veiculo.setQuilometragem(dados.getQuilometragem());
         veiculo.setStatus(dados.getStatus());
+        veiculo.setFoto(dados.getFoto());
 
         return salvar(veiculo);
     }
@@ -64,6 +65,7 @@ public class VeiculoService {
         veiculo.setPreco(dadosAtualizados.getPreco());
         veiculo.setQuilometragem(dadosAtualizados.getQuilometragem());
         veiculo.setStatus(dadosAtualizados.getStatus());
+        if (dadosAtualizados.getFoto() != null) veiculo.setFoto(dadosAtualizados.getFoto());
 
         return veiculoRepository.save(veiculo);
     }

@@ -36,6 +36,11 @@ public class VeiculoRequestDTO {
     @NotNull(message = "O status é obrigatório")
     private StatusVeiculo status;
 
+    @jakarta.validation.constraints.Size(max = 500000)
+    @jakarta.validation.constraints.Pattern(regexp = "data:image/jpeg;base64,/9j/[A-Za-z0-9+/]*={0,2}", message = "Foto JPEG inválida")
+    private String foto;
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
     public String getMarca() {
         return marca;
     }

@@ -44,6 +44,10 @@ public class Veiculo {
     @Enumerated(EnumType.STRING)
     private StatusVeiculo status;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String foto;
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
     public Veiculo() {
 
     }

@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 public class VeiculoResponseDTO {
 
     private Long id;
+    private final String foto;
+    public String getFoto() { return foto; }
 
     private String marca;
 
@@ -25,6 +27,7 @@ public class VeiculoResponseDTO {
 
     public VeiculoResponseDTO(Veiculo veiculo) {
         this.id = veiculo.getId();
+        this.foto = veiculo.getFoto();
         this.marca = veiculo.getMarca();
         this.modelo = veiculo.getModelo();
         this.ano = veiculo.getAno();
