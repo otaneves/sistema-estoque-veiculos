@@ -15,7 +15,7 @@ export async function api<T>(rota: string, token = '', method = 'GET', dados?: u
    throw Error('A solicitação falhou (HTTP ' + res.status + '). Confira os dados e a conexão.')
  }
  const texto = await res.text()
- return texto ? JSON.parse(texto) : undefined
+ return (texto ? JSON.parse(texto) : undefined) as T
 }
 export const dinheiro = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export const situacao = { DISPONIVEL: 'Disponível', RESERVADO: 'Reservado', VENDIDO: 'Vendido' }
