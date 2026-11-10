@@ -9,8 +9,25 @@ function Foto({ carro }: { carro: Carro }) {
  return <figure className="foto-carro"><img loading="lazy" src={'/veiculos/' + modelo + '.jpg'} alt={'Imagem ilustrativa do modelo ' + modelo}/><figcaption>Imagem ilustrativa</figcaption></figure>
 }
 export function Detalhes({ carro, fechar }: { carro: Carro; fechar: () => void }) {
+ const [extras, definirExtras] = useState<string[]>([])
+ const [indice, selecionar] = useState(0)
+ const [erro, avisar] = useState('')
+ useEffect(() => {
+   let ativo = true
+   api<string[]>('/veiculos/' + carro.id + '/fotos')
+     .then(imagens => { if (ativo) definirExtras(imagens) })
+     .catch(() => { if (ativo) avisar('Não foi possível carregar as fotos adicionais.') })
+   return () => { ativo = false }
+ }, [carro.id])
+ const imagens = carro.foto ? [carro.foto, ...extras] : extras
  return <section className="box"><button onClick={fechar}>← Voltar</button><h1>{carro.marca} {carro.modelo}</h1>
- <Foto carro={carro}/><p>{carro.ano} · {carro.cor} · {carro.quilometragem.toLocaleString('pt-BR')} km</p>
+  {imagens.length ? <figure className="foto-carro">
+   <img src={imagens[indice]} alt={carro.marca + ' ' + carro.modelo + ', foto ' + (indice + 1)}/>
+   {imagens.length > 1 && <figcaption><button disabled={indice === 0} onClick={() => selecionar(indice - 1)}>Anterior</button>
+     {' '}{indice + 1} de {imagens.length}{' '}
+     <button disabled={indice === imagens.length - 1} onClick={() => selecionar(indice + 1)}>Próxima</button></figcaption>}
+ </figure> : <Foto carro={carro}/>}
+ {erro && <p role="alert">{erro}</p>}<p>{carro.ano} · {carro.cor} · {carro.quilometragem.toLocaleString('pt-BR')} km</p>
  <strong>{dinheiro(carro.preco)}</strong><p>{situacao[carro.status]}</p></section>
 }
 
