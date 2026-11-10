@@ -1,7 +1,7 @@
 export type Perfil = 'FUNCIONARIO' | 'GERENTE' | 'ADMIN'
 export interface Conta { id: number; nome: string; email: string; perfil: Perfil }
 export interface Carro {
- id: number; marca: string; modelo: string; ano: number; cor: string
+ foto?: string | null; id: number; marca: string; modelo: string; ano: number; cor: string
  preco: number; quilometragem: number; status: 'DISPONIVEL' | 'RESERVADO' | 'VENDIDO'
 }
 export async function api<T>(rota: string, token = '', method = 'GET', dados?: unknown): Promise<T> {

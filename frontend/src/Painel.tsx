@@ -32,11 +32,39 @@ export default function Painel({ conta, token }: { conta: Conta; token: string }
    catch(e){ avisar(e instanceof Error ? e.message : 'Falha na operação.') }
    finally { aguardar(false) }
  }
+ async function prepararFoto(arquivo: File) {
+   if (!['image/jpeg', 'image/png', 'image/webp'].includes(arquivo.type) || arquivo.size > 10 * 1024 * 1024) {
+     throw Error('Escolha uma foto JPG, PNG ou WebP de até 10 MB.')
+   }
+   const imagem = await createImageBitmap(arquivo).catch(() => { throw Error('Não foi possível ler a imagem selecionada.') })
+   try {
+     const canvas = document.createElement('canvas')
+     const escala = Math.min(1, 1000 / Math.max(imagem.width, imagem.height))
+     canvas.width = Math.max(1, Math.round(imagem.width * escala))
+     canvas.height = Math.max(1, Math.round(imagem.height * escala))
+     const contexto = canvas.getContext('2d')
+     if (!contexto) throw Error('Falha ao preparar a foto.')
+     contexto.fillStyle = '#ffffff'
+     contexto.fillRect(0, 0, canvas.width, canvas.height)
+     contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height)
+     for (const qualidade of [0.82, 0.65, 0.45]) {
+       const foto = canvas.toDataURL('image/jpeg', qualidade)
+       if (foto.length <= 500000) return foto
+     }
+     throw Error('Escolha uma imagem menor.')
+   } finally { imagem.close() }
+ }
  function salvar(evento:FormEvent<HTMLFormElement>) {
    evento.preventDefault()
-   const dados = Object.fromEntries(new FormData(evento.currentTarget))
+   const formulario = new FormData(evento.currentTarget)
+   const arquivo = formulario.get('foto')
+   formulario.delete('foto')
+   const dados = Object.fromEntries(formulario)
    const corpo = {...dados, ano:Number(dados.ano), preco:Number(dados.preco), quilometragem:Number(dados.quilometragem)}
-   void alterar(()=>api(edicao ? '/veiculos/'+edicao.id : '/veiculos',token,edicao ? 'PUT':'POST',corpo))
+   void alterar(async () => {
+     const foto = arquivo instanceof File && arquivo.size ? await prepararFoto(arquivo) : undefined
+     await api(edicao ? '/veiculos/'+edicao.id : '/veiculos', token, edicao ? 'PUT':'POST', {...corpo, foto})
+   })
  }
  return <div className="painel"><aside>{['Visão geral','Veículos',...(gestor?['Funcionários']:[])].map(item=><button key={item} aria-pressed={aba===item} onClick={()=>{trocar(item); abrir(undefined); editar(undefined); avisar('')}}>{item}</button>)}</aside><section>
  {erro && <p role="alert">{erro}</p>}
@@ -44,7 +72,7 @@ export default function Painel({ conta, token }: { conta: Conta; token: string }
  detalhe ? <Detalhes carro={detalhe} fechar={()=>abrir(undefined)}/> :
  edicao!==undefined ? <form className="box" onSubmit={salvar}><h1>{edicao?'Editar veículo':'Novo veículo'}</h1>
  <div className="grid">{([['marca','Marca'],['modelo','Modelo'],['cor','Cor'],['ano','Ano'],['preco','Preço (R$)'],['quilometragem','Quilometragem']] as const).map(([campo,label])=><label key={campo}>{label}<input name={campo} required defaultValue={edicao?.[campo]} type={['ano','preco','quilometragem'].includes(campo)?'number':'text'} min="0" step={campo==='preco'?'.01':undefined}/></label>)}
- <label>Situação<select name="status" defaultValue={edicao?.status}>{Object.entries(situacao).map(([v,t])=><option key={v} value={v}>{t}</option>)}</select></label></div>
+ <label>Foto do veículo (opcional, até 10 MB)<input type="file" name="foto" accept="image/jpeg,image/png,image/webp"/></label><label>Situação<select name="status" defaultValue={edicao?.status}>{Object.entries(situacao).map(([v,t])=><option key={v} value={v}>{t}</option>)}</select></label></div>
  <button disabled={ocupado}>Salvar</button> <button type="button" disabled={ocupado} onClick={()=>editar(undefined)}>Cancelar</button></form> :
  <><header><h1>{aba}</h1><button onClick={()=>editar(null)}>+ Novo veículo</button></header>
  <div className="cards">{[['Total',lista.length],['Disponíveis',lista.filter(c=>c.status==='DISPONIVEL').length],['Indisponíveis',lista.filter(c=>c.status!=='DISPONIVEL').length]].map(([t,n])=><div className="box" key={t}>{t}<h2>{n}</h2></div>)}</div>

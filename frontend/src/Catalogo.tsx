@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api, dinheiro, situacao, type Carro } from './estoqueApi'
 
 function Foto({ carro }: { carro: Carro }) {
+ if (carro.foto) return <figure className="foto-carro"><img loading="lazy" src={carro.foto} alt={carro.marca + " " + carro.modelo}/></figure>
  const nomes = (carro.marca + ' ' + carro.modelo).toLowerCase().split(/\W+/)
  const modelo = ['civic', 'corolla', 'siena', 'fox'].find(m => nomes.includes(m))
  if (!modelo) return null
