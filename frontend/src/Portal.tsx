@@ -19,6 +19,6 @@ export default function Portal() {
    catch(e){ avisar(e instanceof Error ? e.message : 'Falha no acesso.') }
    finally { aguardar(false) }
  }
- return <><nav><strong>Estoque</strong><span>{sessao?.conta.nome} {sessao?.conta.perfil}</span>{sessao ? <button onClick={()=>window.location.assign("/")}>Sair</button> : login && <a href="/">Voltar ao catálogo</a>}</nav>
+ return <><nav><strong>Concessionária Luizon</strong><span>{sessao?.conta.nome} {sessao?.conta.perfil}</span>{sessao ? <button onClick={()=>window.location.assign("/")}>Sair</button> : login && <a href="/">Voltar ao catálogo</a>}</nav>
  <main>{sessao ? <Painel {...sessao}/> : login ? <form className="box login" onSubmit={autenticar}><h1>Acesse sua conta</h1><label>E-mail<input name="email" type="email" required autoComplete="username"/></label><label>Senha<input name="senha" type="password" required autoComplete="current-password"/></label>{erro && <p role="alert">{erro}</p>}<button disabled={ocupado}>{ocupado?'Entrando…':'Entrar'}</button></form> : <Catalogo/>}</main></>
 }
