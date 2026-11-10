@@ -45,6 +45,11 @@ public class VeiculoController {
 
     }
 
+    @GetMapping("/{id}/fotos")
+    public List<String> fotosExtras(@PathVariable Long id) {
+        return veiculoService.fotosExtras(id);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<VeiculoResponseDTO> buscarPorId(@PathVariable Long id) {
 

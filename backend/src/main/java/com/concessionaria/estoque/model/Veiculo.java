@@ -48,6 +48,14 @@ public class Veiculo {
     private String foto;
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
+    @ElementCollection
+    @CollectionTable(name = "veiculo_fotos", joinColumns = @JoinColumn(name = "veiculo_id"))
+    @OrderColumn(name = "posicao")
+    @Column(name = "imagem", columnDefinition = "MEDIUMTEXT")
+    private java.util.List<String> fotosExtras = new java.util.ArrayList<>();
+
+    public java.util.List<String> getFotosExtras() { return fotosExtras; }
+
     public Veiculo() {
 
     }

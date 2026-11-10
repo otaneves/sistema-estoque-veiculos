@@ -41,6 +41,14 @@ public class VeiculoRequestDTO {
     private String foto;
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
+    @jakarta.validation.constraints.Size(max = 7)
+    private java.util.List<@NotNull @jakarta.validation.constraints.Size(max = 500000)
+            @jakarta.validation.constraints.Pattern(regexp = "data:image/jpeg;base64,/9j/[A-Za-z0-9+/]*={0,2}")
+            String> fotosExtras;
+
+    public java.util.List<String> getFotosExtras() { return fotosExtras; }
+    public void setFotosExtras(java.util.List<String> fotosExtras) { this.fotosExtras = fotosExtras; }
+
     public String getMarca() {
         return marca;
     }
