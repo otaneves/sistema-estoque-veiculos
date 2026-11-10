@@ -11,7 +11,10 @@ export async function api<T>(rota: string, token = '', method = 'GET', dados?: u
  const res = await fetch('/api' + rota, { method, headers, credentials: 'omit', body: JSON.stringify(dados) })
  if (!res.ok) {
    if (res.status === 401) throw Error('Confira seu e-mail e senha.')
-   if (res.status === 403) throw Error('Sua conta não tem permissão para esta ação.')
+   if (res.status === 403) {
+     const erro = await res.json().catch(() => null)
+     throw Error(erro?.mensagem || 'Sua conta não tem permissão para esta ação.')
+   }
    throw Error('A solicitação falhou (HTTP ' + res.status + '). Confira os dados e a conexão.')
  }
  const texto = await res.text()
