@@ -15,7 +15,19 @@ class FrontendLocal {
     private Process vite;
 
     @EventListener(ApplicationReadyEvent.class)
-    void iniciar() throws Exception {
+    void iniciar() {
+        try {
+            iniciarVite();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (IOException | java.net.URISyntaxException e) {
+            LOG.warn("Não foi possível iniciar o catálogo. A API continua disponível.", e);
+        }
+    }
+
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(FrontendLocal.class);
+
+    private void iniciarVite() throws IOException, InterruptedException, java.net.URISyntaxException {
         Path classes = Path.of(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
         if (!Files.isDirectory(classes)) return;
         for (Path dir = classes; dir != null; dir = dir.getParent()) {
@@ -26,16 +38,17 @@ class FrontendLocal {
             if (!Files.isRegularFile(script)) throw new IOException("Execute npm install na pasta frontend.");
             vite = new ProcessBuilder("node", script.toString(), "--host", "127.0.0.1",
                     "--port", "80", "--strictPort").directory(frontend.toFile()).inheritIO().start();
-            for (int tentativa = 0; tentativa < 50 && vite.isAlive(); tentativa++) {
-                if (catalogoDisponivel()) return;
-                Thread.sleep(200);
-            }
-            throw new IOException("O catálogo não iniciou. Confira a saída do Vite e a porta 80.");
+            vite.onExit().thenAccept(processo -> {
+                if (processo.exitValue() != 0) {
+                    LOG.warn("Vite encerrou com código {}. Confira a saída do frontend e a porta 80.", processo.exitValue());
+                }
+            });
+            return;
         }
     }
 
     private boolean catalogoDisponivel() throws InterruptedException {
-        var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/"))
+        var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).version(HttpClient.Version.HTTP_1_1)
                 .timeout(Duration.ofSeconds(1)).GET().build();
         try {
             var resposta = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
