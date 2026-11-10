@@ -15,6 +15,10 @@ export async function api<T>(rota: string, token = '', method = 'GET', dados?: u
      const erro = await res.json().catch(() => null)
      throw Error(erro?.mensagem || 'Sua conta não tem permissão para esta ação.')
    }
+   const detalhe = await res.json().catch(() => null)
+   const campos = Object.entries(detalhe?.campos ?? {}).map(([campo, motivo]) => campo + ': ' + motivo)
+   if (campos.length) throw Error(campos.join(' · '))
+   if (detalhe?.mensagem) throw Error(detalhe.mensagem)
    throw Error('A solicitação falhou (HTTP ' + res.status + '). Confira os dados e a conexão.')
  }
  const texto = await res.text()
