@@ -58,11 +58,13 @@ export default function Painel({ conta, token }: { conta: Conta; token: string }
    evento.preventDefault()
    const formulario = new FormData(evento.currentTarget)
    const arquivos = formulario.getAll('foto').filter((item): item is File => item instanceof File && item.size > 0)
+   const capa = formulario.get('capa')
+   formulario.delete('capa')
    formulario.delete('foto')
    const dados = Object.fromEntries(formulario)
    const corpo = {...dados, ano:Number(dados.ano), preco:Number(dados.preco), quilometragem:Number(dados.quilometragem)}
    void alterar(async () => {
-     let foto: string | undefined
+     let foto = capa instanceof File && capa.size ? await prepararFoto(capa) : undefined
      let fotosExtras: string[] | undefined
      if (arquivos.length) {
        fotosExtras = edicao ? await api<string[]>('/veiculos/' + edicao.id + '/fotos', token) : []
@@ -84,7 +86,7 @@ export default function Painel({ conta, token }: { conta: Conta; token: string }
  detalhe ? <Detalhes carro={detalhe} fechar={()=>abrir(undefined)}/> :
  edicao!==undefined ? <form className="box" onSubmit={salvar}><h1>{edicao?'Editar veículo':'Novo veículo'}</h1>
  <div className="grid">{([['marca','Marca'],['modelo','Modelo'],['cor','Cor'],['ano','Ano'],['preco','Preço (R$)'],['quilometragem','Quilometragem']] as const).map(([campo,label])=><label key={campo}>{label}<input name={campo} required defaultValue={edicao?.[campo]} type={['ano','preco','quilometragem'].includes(campo)?'number':'text'} min={campo==='ano' ? new Date().getFullYear()-20 : 0} max={campo==='ano' ? new Date().getFullYear() : undefined} step={campo==='preco'?'.01':undefined}/></label>)}
- <label>Adicionar fotos (até 8 por veículo, 10 MB cada)<input type="file" multiple name="foto" accept="image/jpeg,image/png,image/webp"/></label><label>Situação<select name="status" defaultValue={edicao?.status}>{Object.entries(situacao).map(([v,t])=><option key={v} value={v}>{t}</option>)}</select></label></div>
+ {edicao?.foto && <label>Trocar foto de capa<input name="capa" type="file" accept="image/jpeg,image/png,image/webp"/></label>}<label>Adicionar fotos (até 8 por veículo, 10 MB cada)<input type="file" multiple name="foto" accept="image/jpeg,image/png,image/webp"/></label><label>Situação<select name="status" defaultValue={edicao?.status}>{Object.entries(situacao).map(([v,t])=><option key={v} value={v}>{t}</option>)}</select></label></div>
  <button disabled={ocupado}>Salvar</button> <button type="button" disabled={ocupado} onClick={()=>editar(undefined)}>Cancelar</button></form> :
  <><header><h1>{aba}</h1><button onClick={()=>editar(null)}>+ Novo veículo</button></header>
  <div className="cards">{[['Total',lista.length],['Disponíveis',lista.filter(c=>c.status==='DISPONIVEL').length],['Indisponíveis',lista.filter(c=>c.status!=='DISPONIVEL').length]].map(([t,n])=><div className="box" key={t}>{t}<h2>{n}</h2></div>)}</div>
