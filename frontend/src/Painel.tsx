@@ -1,3 +1,4 @@
+import Equipe from './Equipe'
 import { useEffect, useState, type FormEvent } from 'react'
 import { api, situacao, type Carro, type Conta } from './estoqueApi'
 import { Detalhes } from './Catalogo'
@@ -39,7 +40,7 @@ export default function Painel({ conta, token }: { conta: Conta; token: string }
  }
  return <div className="painel"><aside>{['Visão geral','Veículos',...(gestor?['Funcionários']:[])].map(item=><button key={item} aria-pressed={aba===item} onClick={()=>{trocar(item); abrir(undefined); editar(undefined); avisar('')}}>{item}</button>)}</aside><section>
  {erro && <p role="alert">{erro}</p>}
- {aba==='Funcionários' ? <><h1>Funcionários</h1><div className="box"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th></tr></thead><tbody>{equipe.map(p=><tr key={p.id}><td>{p.nome}</td><td>{p.email}</td><td>{p.perfil}</td></tr>)}</tbody></table></div></> :
+ {aba==='Funcionários' ? <Equipe conta={conta} token={token} lista={equipe} ocupado={ocupado} alterar={alterar}/> :
  detalhe ? <Detalhes carro={detalhe} fechar={()=>abrir(undefined)}/> :
  edicao!==undefined ? <form className="box" onSubmit={salvar}><h1>{edicao?'Editar veículo':'Novo veículo'}</h1>
  <div className="grid">{([['marca','Marca'],['modelo','Modelo'],['cor','Cor'],['ano','Ano'],['preco','Preço (R$)'],['quilometragem','Quilometragem']] as const).map(([campo,label])=><label key={campo}>{label}<input name={campo} required defaultValue={edicao?.[campo]} type={['ano','preco','quilometragem'].includes(campo)?'number':'text'} min="0" step={campo==='preco'?'.01':undefined}/></label>)}
