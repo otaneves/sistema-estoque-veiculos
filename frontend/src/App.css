@@ -1,74 +1,164 @@
-.catalogo{
-  text-align: center;
-  padding: 40px;
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 18px;
 }
 
-.catalago h1{
-  font-size: 36px;
-  color: #1e3a8a;
+header {
+  margin-bottom: 24px;
 }
 
-.catalogo p{
-  font-size: 18px;
-  color: #555555;
+h1,
+h2,
+h3 {
+  margin-top: 0;
 }
 
-.catalogo button{
-  background-color: #2563eb;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+h1 {
+  margin-bottom: 8px;
 }
 
-.veiculo-card {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+.painel {
+  background: white;
+  border: 1px solid #dce3ed;
   border-radius: 12px;
-  padding: 24px;
-  margin: 30px auto;
-  max-width: 350px;
-  text-align: left;
+  padding: 22px;
+  margin-bottom: 20px;
 }
 
-.veiculo-card h2 {
-  color: #1e3a8a;
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.veiculo-card h3 {
-  color: #16a34a;
-  margin-top: 24px;
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
 }
 
-.veiculo-card span {
-  background-color: #dcfce7;
-  color: #166534;
-  padding: 6px 12px;
-  border-radius: 6px;
+input,
+textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #aab6c7;
+  border-radius: 7px;
+  color: #172033;
+  background: #fff;
+  font: inherit;
 }
 
-button.filtro-ativo {
-  background-color: #163b8c;
-  color: white;
-  border: 2px solid #0b255c;
+textarea {
+  font-family: Consolas, monospace;
+  line-height: 1.5;
+  resize: vertical;
 }
 
-button:hover,
-button:focus-visible {
-  background-color: #2456b8;
-  cursor: pointer;
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+input:focus,
+textarea:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 button {
-  transition: background-color 0.3s ease;
-  transform: 0.3 ease,
-  box-shadow 0.3s ease;
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 7px;
+  background: #1d4ed8;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-button:focus-visible {
-  outline: 2px solid #f59e0b;
-  outline-offset: 3px;
+button:hover {
+  background: #1e40af;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.perigo {
+  background: #b91c1c;
+}
+
+.perigo:hover {
+  background: #991b1b;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.ajuda {
+  color: #536176;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.erro,
+.sucesso {
+  padding: 14px;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.erro {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.sucesso {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.cabecalho-lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cabecalho-lista h2 {
+  margin: 0;
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+
+.veiculo {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #dce3ed;
+  border-radius: 8px;
+}
+
+pre {
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+
+  .painel {
+    padding: 16px;
+  }
 }

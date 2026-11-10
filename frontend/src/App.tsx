@@ -1,537 +1,307 @@
+import { useEffect, useState } from 'react';
+import type { Credenciais, Veiculo } from './types/Veiculo';
+import { veiculoApi } from './services/veiculoApi';
+import './App.css';
 
-import { useState, useEffect } from "react";
-import "./App.css";
+function lerJson(texto: string): Veiculo {
+  let valor: unknown;
 
-type StatusVeiculo = "DISPONIVEL" | "RESERVADO" | "VENDIDO";
-
-type FiltroVeiculo = StatusVeiculo | "TODOS";
-
-type OrdemPreco = "CRESCENTE" | "DECRESCENTE";
-
-type Veiculo = {
-  id: number;
-  marca: string;
-  modelo: string;
-  ano: number;
-  cor: string;
-  quilometragem: number;
-  preco: number;
-  status: StatusVeiculo;
-};
-
-type NovoVeiculo = Omit<Veiculo, "id">;
-
-
-function App() {
-  
-  const [novoVeiculo, setNovoVeiculo] = useState<NovoVeiculo>({
-    marca: "",
-    modelo: "",
-    ano: 2026,
-    cor: "",
-    quilometragem: 0,
-    preco: 0,
-    status: "DISPONIVEL"
-  });
-  
-  const [salvando, setSalvando] = useState(false);
-  
-  const [mensagemCadastro, setMensagemCadastro] = useState<string | null>(null);
-
-  const [idEmEdicao, setIdEmEdicao] = useState<number | null>(null);
-
-  function iniciarEdicao(carro: Veiculo) {
-    setIdEmEdicao(carro.id);
-
-    setNovoVeiculo({
-      marca: carro.marca,
-      modelo: carro.modelo,
-      ano: carro.ano,
-      cor: carro.cor,
-      quilometragem: carro.quilometragem,
-      preco: carro.preco,
-      status: carro.status
-    });
-
-    setMensagemCadastro("");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  try {
+    valor = JSON.parse(texto);
+  } catch {
+    throw new Error('JSON inválido. Confira as aspas, vírgulas e chaves.');
   }
 
-  // Estado responsável pelo filtro selecionado
-  const [filtroStatus, setFiltroStatus] =
-    useState<FiltroVeiculo>("DISPONIVEL");
+  if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) {
+    throw new Error('Informe um objeto JSON entre chaves: { ... }.');
+  }
 
-  const [ordemPreco, setOrdemPreco] = useState<OrdemPreco>("CRESCENTE");
+  if (Object.keys(valor).length === 0) {
+    throw new Error('Preencha o JSON com os campos exigidos pelo backend.');
+  }
 
+  return valor as Veiculo;
+}
+
+function mensagemErro(erro: unknown): string {
+  return erro instanceof Error ? erro.message : 'Ocorreu um erro inesperado.';
+}
+
+export default function App() {
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [usuario, setUsuario] = useState('');
+  const [senha, setSenha] = useState('');
+  const [id, setId] = useState('');
+  const [json, setJson] = useState('{}');
+  const [ocupado, setOcupado] = useState(false);
+  const [mensagem, setMensagem] = useState('');
+  const [erro, setErro] = useState('');
 
-  const [busca, setBusca] = useState("");
-
-  const [erroApi, setErroApi] = useState<string | null>(null);
-
-  const [carregando, setCarregando] = useState(true);
-
-  // Filtra os veículos pelo status selecionado
-  const veiculosDisponiveis = veiculos.filter((carro) => {
-    const correspondeStatus =
-      filtroStatus === "TODOS" ||
-      carro.status === filtroStatus;
-
-    const correspondeBusca =
-      carro.marca.toLowerCase().includes(busca.toLowerCase()) ||
-      carro.modelo.toLowerCase().includes(busca.toLowerCase());
-
-    return correspondeStatus && correspondeBusca;
-  });
-
-  const veiculosOrdenados = [...veiculosDisponiveis].sort(
-    (a, b) => {
-      if (ordemPreco === "CRESCENTE") {
-        return a.preco - b.preco;
-      } else {
-        return b.preco - a.preco;
-      }
-    }
-  );
-
-  // Formata o status exibido no card
-  function formatarStatus(status: StatusVeiculo): string {
-    switch (status) {
-      case "DISPONIVEL":
-        return "Disponível";
-
-      case "RESERVADO":
-        return "Reservado";
-
-      case "VENDIDO":
-        return "Vendido";
-
-      default:
-        return "Desconhecido";
-    }
-  }
-
-  // Formata o título conforme o filtro selecionado
-  function formatarTituloFiltro(status: FiltroVeiculo): string {
-    switch (status) {
-      case "TODOS":
-        return "Todos os veículos";
-
-      case "DISPONIVEL":
-        return "Veículos disponíveis";
-
-      case "RESERVADO":
-        return "Veículos reservados";
-
-      case "VENDIDO":
-        return "Veículos vendidos";
-
-      default:
-        return "Veículos";
-    }
-  }
-  
   useEffect(() => {
-    carregarVeiculos();
+    let ativo = true;
+
+    veiculoApi.listarDisponiveis()
+      .then(dados => {
+        if (ativo) setVeiculos(dados);
+      })
+      .catch(falha => {
+        if (ativo) setErro(mensagemErro(falha));
+      });
+
+    return () => {
+      ativo = false;
+    };
   }, []);
 
-  async function carregarVeiculos() {
-    setCarregando(true);
-    setErroApi(null); // Limpa qualquer mensagem de erro anterior
-
-    try{
-      const resposta = await fetch("http://localhost:8080/veiculos");
-
-      if (!resposta.ok) {
-        throw new Error("Erro ao buscar veículos");
-      }
-
-    const dados: Veiculo[] = await resposta.json();
-
-    setVeiculos(dados);
-    } catch (error) {
-      console.error("Erro ao carregar veículos:", error);
-      setErroApi("Erro ao carregar veículos da API. Por favor, tente novamente mais tarde.");
-    } finally {
-      setCarregando(false);
+  function credenciaisObrigatorias(): Credenciais {
+    if (!usuario.trim() || !senha) {
+      throw new Error('Preencha o usuário e a senha para esta operação.');
     }
+
+    if (usuario.includes(':')) {
+      throw new Error('O usuário do HTTP Basic não pode conter dois-pontos.');
+    }
+
+    return { usuario: usuario.trim(), senha };
   }
 
-  async function salvarVeiculo() {
-    setSalvando(true);
-    setMensagemCadastro(null);
+  function idObrigatorio(): string {
+    if (!id.trim()) {
+      throw new Error('Informe o ID do veículo.');
+    }
 
-    const editando = idEmEdicao !== null;
+    return id.trim();
+  }
+
+  async function executar(acao: () => Promise<void>) {
+    setOcupado(true);
+    setErro('');
+    setMensagem('');
 
     try {
-      const url = editando 
-        ? `http://localhost:8080/veiculos/${idEmEdicao}`
-        : "http://localhost:8080/veiculos";
-
-      const resposta = await fetch(url, {
-        method: editando ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(novoVeiculo)
-      });
-
-      if (!resposta.ok) {
-        throw new Error
-        (editando ? "Erro ao atualizar veículo" : 
-          "Erro ao cadastrar veículo");
-      }
-
-      setMensagemCadastro(
-        editando 
-        ? "Veículo atualizado com sucesso!"
-        : "Veículo cadastrado com sucesso!"
-      );
-
-      setIdEmEdicao(null); // Limpa o estado de edição após salvar
-
-      setNovoVeiculo({
-        marca: "",
-        modelo: "",
-        ano: 2026,
-        cor: "",
-        quilometragem: 0,
-        preco: 0,
-        status: "DISPONIVEL"
-      });
-
-      await carregarVeiculos(); // Atualiza a lista de veículos após o cadastro
-
-    } catch (error) {
-      console.error("Erro ao cadastrar veículo:", error);
-      setMensagemCadastro("Erro ao cadastrar veículo. Por favor, tente novamente mais tarde.");
-
-      setMensagemCadastro(
-        editando 
-        ? "Erro ao atualizar veículo. Por favor, tente novamente mais tarde."
-        : "Erro ao cadastrar veículo. Por favor, tente novamente mais tarde."
-      )
+      await acao();
+    } catch (falha) {
+      setErro(mensagemErro(falha));
     } finally {
-      setSalvando(false);
+      setOcupado(false);
     }
   }
 
-    async function excluirVeiculo(id: number) {
-      const confirmou = window.confirm(
-        "Tem certeza que deseja excluir este veículo?"
+  async function recarregarAposAlteracao(sucesso: string) {
+    setMensagem(sucesso);
+
+    try {
+      setVeiculos(await veiculoApi.listarDisponiveis());
+    } catch (falha) {
+      setErro(
+        `A operação foi concluída, mas a lista não atualizou: ${mensagemErro(falha)}`,
+      );
+    }
+  }
+
+  function listar() {
+    void executar(async () => {
+      setVeiculos(await veiculoApi.listarDisponiveis());
+      setMensagem('Lista atualizada.');
+    });
+  }
+
+  function buscar() {
+    void executar(async () => {
+      const credenciais = usuario.trim() || senha
+        ? credenciaisObrigatorias()
+        : undefined;
+
+      const veiculo = await veiculoApi.buscar(idObrigatorio(), credenciais);
+
+      setJson(JSON.stringify(veiculo, null, 2));
+      setMensagem('Veículo carregado no editor.');
+    });
+  }
+
+  function cadastrar() {
+    void executar(async () => {
+      await veiculoApi.criar(lerJson(json), credenciaisObrigatorias());
+      await recarregarAposAlteracao('Veículo cadastrado.');
+    });
+  }
+
+  function atualizar() {
+    void executar(async () => {
+      await veiculoApi.atualizar(
+        idObrigatorio(),
+        lerJson(json),
+        credenciaisObrigatorias(),
       );
 
-      if (!confirmou) {
+      await recarregarAposAlteracao('Veículo atualizado.');
+    });
+  }
+
+  function excluir() {
+    void executar(async () => {
+      const identificador = idObrigatorio();
+      const credenciais = credenciaisObrigatorias();
+
+      if (!window.confirm(`Excluir o veículo de ID ${identificador}?`)) {
         return;
       }
 
-      try {
-        const resposta = await fetch(
-          `http://localhost:8080/veiculos/${id}`,
-          {
-            method: "DELETE"
-          }
-        );
-
-        if (!resposta.ok) {
-          throw new Error("Erro ao excluir veículo");
-        }
-
-        await carregarVeiculos();
-
-        alert("Veículo excluído com sucesso!");
-
-      } catch (erro) {
-        console.error("Erro ao excluir veículo:", erro);
-        alert("Não foi possível excluir o veículo.");
-      }
-    }
+      await veiculoApi.excluir(identificador, credenciais);
+      setId('');
+      setJson('{}');
+      await recarregarAposAlteracao('Veículo excluído.');
+    });
+  }
 
   return (
-    <div className="catalogo">
+    <main className="container">
+      <header>
+        <h1>Estoque de veículos</h1>
+        <p>Integração React + Spring Boot</p>
+      </header>
 
-      <h1>Catálogo de Veículos</h1>
+      <section className="painel">
+        <h2>Credenciais para operações protegidas</h2>
 
-      <p>Bem-Vindo a nossa Concessionária!</p>
+        <div className="campos">
+          <label>
+            Usuário / e-mail
+            <input
+              value={usuario}
+              onChange={evento => setUsuario(evento.target.value)}
+              autoComplete="off"
+              disabled={ocupado}
+            />
+          </label>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          salvarVeiculo();
-        }}
-      >
-        <h2>{idEmEdicao !== null ? "Editar veículo" : "Cadastrar veículo"}</h2>
+          <label>
+            Senha
+            <input
+              type="password"
+              value={senha}
+              onChange={evento => setSenha(evento.target.value)}
+              autoComplete="off"
+              disabled={ocupado}
+            />
+          </label>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Marca"
-          value={novoVeiculo.marca}
-          required
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              marca: e.target.value
-            })
-          }
-        />
+        <p className="ajuda">
+          As credenciais ficam somente na memória desta página.
+          O backend valida as permissões.
+        </p>
 
-        <input
-          type="text"
-          placeholder="Modelo"
-          value={novoVeiculo.modelo}
-          required
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              modelo: e.target.value
-            })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Ano"
-          value={novoVeiculo.ano}
-          required
-          min="1900"
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              ano: Number(e.target.value)
-            })
-          }
-        />
-
-        <input
-          type="text"
-          placeholder="Cor"
-          value={novoVeiculo.cor}
-          required
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              cor: e.target.value
-            })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Quilometragem"
-          value={novoVeiculo.quilometragem}
-          required
-          min="0"
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              quilometragem: Number(e.target.value)
-            })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Preço"
-          value={novoVeiculo.preco}
-          required
-          min="0"
-          step="0.01"
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              preco: Number(e.target.value)
-            })
-          }
-        />
-
-        <select
-          value={novoVeiculo.status}
-          onChange={(e) =>
-            setNovoVeiculo({
-              ...novoVeiculo,
-              status: e.target.value as StatusVeiculo
-            })
-          }
+        <button
+          type="button"
+          disabled={ocupado}
+          onClick={() => {
+            setUsuario('');
+            setSenha('');
+          }}
         >
-          <option value="DISPONIVEL">Disponível</option>
-          <option value="RESERVADO">Reservado</option>
-          <option value="VENDIDO">Vendido</option>
-        </select>
-
-        <button type="submit" disabled={salvando}>
-          {salvando ? "Salvando..." : idEmEdicao !== null ? "Atualizar veículo" : "Cadastrar veículo"}
+          Limpar credenciais
         </button>
+      </section>
 
-        {idEmEdicao !== null && (
+      {erro && <p className="erro" role="alert">{erro}</p>}
+      {mensagem && <p className="sucesso" role="status">{mensagem}</p>}
+      {ocupado && <p role="status">Processando...</p>}
+
+      <section className="painel">
+        <h2>Consultar, cadastrar e editar</h2>
+
+        <label>
+          ID — necessário para buscar, atualizar ou excluir
+          <input
+            value={id}
+            onChange={evento => setId(evento.target.value)}
+            placeholder="Informe o ID"
+            disabled={ocupado}
+          />
+        </label>
+
+        <div className="acoes">
+          <button type="button" onClick={buscar} disabled={ocupado}>
+            Buscar por ID
+          </button>
+        </div>
+
+        <label>
+          Dados do veículo em JSON
+          <textarea
+            value={json}
+            onChange={evento => setJson(evento.target.value)}
+            spellCheck={false}
+            disabled={ocupado}
+            rows={12}
+          />
+        </label>
+
+        <p className="ajuda">
+          Para cadastrar, use os mesmos campos do JSON de POST já testado
+          no backend. Para editar, busque o veículo e ajuste o JSON conforme
+          os campos aceitos pelo PUT.
+        </p>
+
+        <div className="acoes">
+          <button type="button" onClick={cadastrar} disabled={ocupado}>
+            Cadastrar
+          </button>
+
+          <button type="button" onClick={atualizar} disabled={ocupado}>
+            Atualizar pelo ID
+          </button>
+
           <button
             type="button"
-            disabled={salvando}
-            onClick={() => {
-              setIdEmEdicao(null);
-
-              setNovoVeiculo({
-                marca: "",
-                modelo: "",
-                ano: 2026,
-                cor: "",
-                quilometragem: 0,
-                preco: 0,
-                status: "DISPONIVEL"
-              });
-
-              setMensagemCadastro("");
-            }}
+            className="perigo"
+            onClick={excluir}
+            disabled={ocupado}
           >
-            Cancelar edição
+            Excluir pelo ID
           </button>
-        )}
+        </div>
 
-        {mensagemCadastro && <p>{mensagemCadastro}</p>}
-      </form>
-
-      {erroApi && (
-        <p className="mensagem-erro">{erroApi}</p>
-      )}
-
-      {carregando && (
-        <p>Carregando veículos...</p>
-      )}
-
-      <button onClick={carregarVeiculos} disabled={carregando}>
-        {carregando ? "Atualizando..." : "Atualizar veículos"}
-      </button>
-
-      <button className={filtroStatus === "TODOS" ? "filtro-ativo" : ""} 
-              onClick={() => setFiltroStatus("TODOS")}>
-        Ver todos os veículos
-      </button>
-
-      <div className="pesquisa">
-        <input
-          type="text"
-          placeholder="Pesquisar por marca ou modelo"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-        >
-        </input>
-      </div>
-
-      <h3>Filtrar veículos por status</h3>
-
-      {/* Botões interativos de filtro */}
-      <div className="filtros">
-
-        <button
-          className={
-            filtroStatus === "DISPONIVEL" ? "filtro-ativo" : ""
-          }
-          onClick={() => setFiltroStatus("DISPONIVEL")}
-        >
-          Disponíveis
-        </button>
-
-        <button
-          className={
-            filtroStatus === "RESERVADO" ? "filtro-ativo" : ""
-          }
-          onClick={() => setFiltroStatus("RESERVADO")}
-        >
-          Reservados
-        </button>
-
-        <button
-          className={
-            filtroStatus === "VENDIDO" ? "filtro-ativo" : ""
-          }
-          onClick={() => setFiltroStatus("VENDIDO")}
-        >
-          Vendidos
-        </button>
-
-      </div>
-      
-      <h3>Ordenar veículos por preço</h3>
-
-      <div className="ordenacao">
-          <button className={ordemPreco === "CRESCENTE" ? "filtro-ativo" : ""}
-          onClick={() => setOrdemPreco("CRESCENTE")}>
-            Menor preço
-          </button>
-
-          <button className={ordemPreco === "DECRESCENTE" ? "filtro-ativo" : ""}
-          onClick={() => setOrdemPreco("DECRESCENTE")}>
-            Maior preço
-          </button>
-      </div>
-
-      {/* Quantidade de veículos filtrados */}
-      <p>
-        {formatarTituloFiltro(filtroStatus)}:{" "}
-        {veiculosDisponiveis.length}
-      </p>
-
-      {/* Mensagem para lista vazia */}
-      {!carregando && !erroApi && veiculosDisponiveis.length === 0 && (
-        <p>
-          {busca.trim() !== "" ?
-          `Nenhum veículo encontrado para a pesquisa: "${busca}"`
-          :
-          "Nenhum veículo encontrado para os filtros selecionados."
-          }
+        <p className="ajuda">
+          Cadastro e atualização: FUNCIONARIO, GERENTE ou ADMIN.
+          Exclusão: GERENTE ou ADMIN.
         </p>
-      )}
-      {/* Cards gerados automaticamente */}
-      {!carregando && !erroApi && (
-        <>
-        {veiculosOrdenados.map((carro) => (
+      </section>
 
-          <div className="veiculo-card" key={carro.id}>
+      <section className="painel">
+        <div className="cabecalho-lista">
+          <h2>Veículos disponíveis ({veiculos.length})</h2>
+          <button type="button" onClick={listar} disabled={ocupado}>
+            Atualizar lista
+          </button>
+        </div>
 
-            <h2>
-              {carro.marca} {carro.modelo}
-            </h2>
+        {veiculos.length === 0 && <p>Nenhum veículo disponível na lista.</p>}
 
-            <p>Ano: {carro.ano}</p>
-
-            <p>Cor: {carro.cor}</p>
-
-            <p>
-              Quilometragem:{" "}
-              {carro.quilometragem.toLocaleString("pt-BR")} km
-            </p>
-
-            <h3>
-              {carro.preco.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
-            </h3>
-
-            <span>{formatarStatus(carro.status)}</span>
-
-            <button
-              type="button"
-              onClick={() => iniciarEdicao(carro)}
-            >
-              Editar veículo
-            </button>
-
-            <button
-              type="button"
-              onClick={() => excluirVeiculo(carro.id)}
-            >
-              Excluir veículo
-            </button>
-
-          </div>
-
-        ))}
-
-        </>
-      )}
-    </div>
+        <div className="lista">
+          {veiculos.map((veiculo, indice) => (
+            <article className="veiculo" key={indice}>
+              <h3>Veículo {indice + 1}</h3>
+              <pre>{JSON.stringify(veiculo, null, 2)}</pre>
+              <button
+                type="button"
+                disabled={ocupado}
+                onClick={() => {
+                  setJson(JSON.stringify(veiculo, null, 2));
+                  setId('');
+                  setMensagem(
+                    'JSON carregado. Informe o ID do veículo antes de atualizar.',
+                  );
+                  setErro('');
+                }}
+              >
+                Carregar JSON no editor
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
-
-export default App;

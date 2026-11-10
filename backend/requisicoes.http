@@ -1,39 +1,32 @@
-### TESTE 4 - Usuario autenticado sem permissao
-POST http://localhost:8080/veiculos
+### TESTE - Cadastrar Usuário
+POST http://localhost:8080/usuarios
 Content-Type: application/json
-Authorization: Basic visitante VisitanteTeste123!
+Authorization: Basic {{$processEnv ESTOQUE_TEST_EMAIL}} {{$processEnv ESTOQUE_TEST_SENHA}}
 
 {
-  "marca": "Ford",
-  "modelo": "Focus Teste Permissao",
-  "ano": 2022,
-  "cor": "Branco",
-  "quilometragem": 20000,
-  "preco": 65000,
-  "status": "DISPONIVEL"
+  "nome": "Funcionario Teste Gerente",
+  "email": "funcionario.teste.gerente@estoque.local",
+  "senha": "{{$processEnv ESTOQUE_NOVA_SENHA}}",
+  "perfil": "ADMIN"
 }
 ###
 
-### TESTE 5 - Edicao sem autenticacao
-PUT http://localhost:8080/veiculos/9
+### TESTE - Edicao de Usuario
+PUT http://localhost:8080/usuarios/1
 Content-Type: application/json
-Authorization: Basic funcionario SenhaTeste123!
+Authorization: Basic {{$processEnv ESTOQUE_TEST_EMAIL}} {{$processEnv ESTOQUE_TEST_SENHA}}
 
 {
-  "marca": "Fiat",
-  "modelo": "Siena",
-  "ano": 2010,
-  "cor": "Preto",
-  "quilometragem": 150000,
-  "preco": 20000,
-  "status": "VENDIDO"
+  "nome" : "Admin Editado pelo Gerente",
+  "email" : "admin@estoque.local"
 }
 
 ###
 
-DELETE http://localhost:8080/veiculos/12
-Authorization: Basic funcionario SenhaTeste123!
+### TESTE - Deletar Usuario
+DELETE http://localhost:8080/usuarios/1
+Authorization: Basic {{$processEnv ESTOQUE_TEST_EMAIL}} {{$processEnv ESTOQUE_TEST_SENHA}}
 
 ###
 
-GET http://localhost:8080/veiculos/12
+GET http://localhost:8080/veiculos/disponiveis
